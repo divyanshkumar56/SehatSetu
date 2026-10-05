@@ -259,18 +259,22 @@ const Dashboard: React.FC = () => {
                 </div>
                 <span className="text-sm font-medium text-gray-700">Track Referrals</span>
               </Link>
-              <Link to="/facilities" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition-colors">
-                  <MapPin className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">View Facilities</span>
-              </Link>
-              <Link to="/analytics" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition-colors">
-                  <Activity className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">View Analytics</span>
-              </Link>
+              {role === 'admin' && (
+                <>
+                  <Link to="/facilities" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+                    <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition-colors">
+                      <MapPin className="h-4 w-4 text-gray-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">View Facilities</span>
+                  </Link>
+                  <Link to="/analytics" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+                    <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition-colors">
+                      <Activity className="h-4 w-4 text-gray-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">View Analytics</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
