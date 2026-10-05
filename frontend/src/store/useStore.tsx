@@ -160,7 +160,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const advanceReferral = useCallback((id: string, newStatus: ReferralStatus, actor: string, notes?: string, extra?: Partial<Referral>): boolean => {
-    let success = false;
+    // Synchronously check if transition is allowed using current state
+    const ref = referrals.find(r => r.id === id || r.referralCode === id);
+    if (!ref || !VALID_TRANSITIONS[ref.currentStatus]?.includes(newStatus)) {
+      return false;
+    }
+
     setReferrals(prev => prev.map(r => {
       if ((r.id === id || r.referralCode === id) && VALID_TRANSITIONS[r.currentStatus]?.includes(newStatus)) {
         const now = new Date().toISOString();
@@ -170,7 +175,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           actor,
           notes,
         };
-        success = true;
         return {
           ...r,
           ...extra,
@@ -183,8 +187,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       return r;
     }));
-    return success;
-  }, []);
+    return true;
+  }, [referrals]);
 
   const getFacility = useCallback((id: string) => facilities.find(f => f.id === id), [facilities]);
 
