@@ -8,6 +8,7 @@ import {
   Activity,
   Clock,
   CheckCircle2,
+  CalendarDays,
   RefreshCw,
   Stethoscope,
   QrCode,
