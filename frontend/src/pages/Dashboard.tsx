@@ -50,7 +50,9 @@ const Dashboard: React.FC = () => {
     .slice(0, 5);
 
   const stalledReferrals = referrals.filter(r => r.isStalled);
-  const unreadAlerts = alerts.filter(a => !a.isRead).slice(0, 3);
+  const unreadAlerts = alerts
+    .filter(a => !a.isRead && (a.referralId === '' || referrals.some(r => r.id === a.referralId)))
+    .slice(0, 3);
 
   const handleTriggerStall = () => {
     setTriggering(true);
@@ -279,36 +281,38 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Alerts */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Alerts</h3>
-              <Link to="/alerts" className="text-xs text-brand-600 font-semibold hover:underline">View all</Link>
-            </div>
-            {unreadAlerts.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">No new alerts</p>
-            ) : (
-              <div className="space-y-3">
-                {unreadAlerts.map(alert => (
-                  <div
-                    key={alert.id}
-                    className={`p-3 rounded-lg border text-xs cursor-pointer hover:shadow-sm transition-shadow ${
-                      alert.severity === 'critical' ? 'bg-red-50 border-red-200' :
-                      alert.severity === 'warning' ? 'bg-amber-50 border-amber-200' :
-                      'bg-blue-50 border-blue-200'
-                    }`}
-                    onClick={() => navigate(`/referrals/${alert.referralId}`)}
-                  >
-                    <p className={`font-semibold ${
-                      alert.severity === 'critical' ? 'text-red-700' :
-                      alert.severity === 'warning' ? 'text-amber-700' :
-                      'text-blue-700'
-                    }`}>{alert.message}</p>
-                    <p className="text-gray-500 mt-1">{timeAgo(alert.createdAt)}</p>
-                  </div>
-                ))}
+          {role !== 'doctor' && (
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Alerts</h3>
+                <Link to="/alerts" className="text-xs text-brand-600 font-semibold hover:underline">View all</Link>
               </div>
-            )}
-          </div>
+              {unreadAlerts.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">No new alerts</p>
+              ) : (
+                <div className="space-y-3">
+                  {unreadAlerts.map(alert => (
+                    <div
+                      key={alert.id}
+                      className={`p-3 rounded-lg border text-xs cursor-pointer hover:shadow-sm transition-shadow ${
+                        alert.severity === 'critical' ? 'bg-red-50 border-red-200' :
+                        alert.severity === 'warning' ? 'bg-amber-50 border-amber-200' :
+                        'bg-blue-50 border-blue-200'
+                      }`}
+                      onClick={() => navigate(`/referrals/${alert.referralId}`)}
+                    >
+                      <p className={`font-semibold ${
+                        alert.severity === 'critical' ? 'text-red-700' :
+                        alert.severity === 'warning' ? 'text-amber-700' :
+                        'text-blue-700'
+                      }`}>{alert.message}</p>
+                      <p className="text-gray-500 mt-1">{timeAgo(alert.createdAt)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Summary */}
           <div className="bg-gradient-to-br from-brand-600 to-brand-800 rounded-xl p-5 text-white">

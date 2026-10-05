@@ -79,11 +79,20 @@ const getNavItems = (role: UserRole) => {
 const Layout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, setRole, alerts, resetAllData } = useStore();
+  const { role, setRole, alerts, referrals: allReferrals, resetAllData } = useStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
-  const unreadAlerts = alerts.filter(a => !a.isRead).length;
+  const scopedReferrals = React.useMemo(() => {
+    let list = allReferrals;
+    if (role === 'referring_facility') return list.filter(r => r.referringFacilityId === 'fac-008');
+    if (role === 'asha') return list.filter(r => r.patientVillage === 'Palampur Village');
+    if (role === 'receiving_facility') return list.filter(r => r.destinationFacilityId === 'fac-003');
+    if (role === 'doctor') return list.filter(r => r.destinationFacilityId === 'fac-003');
+    return list;
+  }, [allReferrals, role]);
+
+  const unreadAlerts = alerts.filter(a => !a.isRead && (a.referralId === '' || scopedReferrals.some(r => r.id === a.referralId))).length;
 
   // Don't show the main layout for the patient view page
   if (location.pathname.startsWith('/patient')) {

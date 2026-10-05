@@ -16,14 +16,29 @@ import { STATUS_LABELS } from '../data/types';
 
 const Alerts: React.FC = () => {
   const navigate = useNavigate();
-  const { alerts, referrals, markAlertRead, simulateStalled, addAlert } = useStore();
+  const { alerts, referrals: allReferrals, markAlertRead, simulateStalled, addAlert, role } = useStore();
   const [triggering, setTriggering] = useState(false);
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'STALLED' | 'CRITICAL'>('ALL');
 
-  const stalledReferrals = referrals.filter(r => r.isStalled);
-  const unreadCount = alerts.filter(a => !a.isRead).length;
+  const referrals = React.useMemo(() => {
+    let list = allReferrals;
+    if (role === 'referring_facility') {
+      return list.filter(r => r.referringFacilityId === 'fac-008');
+    } else if (role === 'asha') {
+      return list.filter(r => r.patientVillage === 'Palampur Village');
+    } else if (role === 'receiving_facility') {
+      return list.filter(r => r.destinationFacilityId === 'fac-003');
+    } else if (role === 'doctor') {
+      return list.filter(r => r.destinationFacilityId === 'fac-003');
+    }
+    return list;
+  }, [allReferrals, role]);
 
-  const filtered = alerts.filter(a => {
+  const stalledReferrals = referrals.filter(r => r.isStalled);
+  const scopedAlerts = alerts.filter(a => a.referralId === '' || referrals.some(r => r.id === a.referralId));
+  const unreadCount = scopedAlerts.filter(a => !a.isRead).length;
+
+  const filtered = scopedAlerts.filter(a => {
     if (filter === 'UNREAD') return !a.isRead;
     if (filter === 'STALLED') return a.type === 'STALLED';
     if (filter === 'CRITICAL') return a.severity === 'critical';
