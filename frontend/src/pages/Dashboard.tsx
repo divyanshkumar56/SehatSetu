@@ -8,10 +8,10 @@ import {
   Activity,
   Clock,
   CheckCircle2,
-  CalendarDays,
   RefreshCw,
   Stethoscope,
   QrCode,
+  TrendingUp,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { STATUS_COLORS, STATUS_LABELS, URGENCY_COLORS } from '../data/types';
