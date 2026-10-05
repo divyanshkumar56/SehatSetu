@@ -59,8 +59,7 @@ export function generateSeedReferrals(): Referral[] {
       referringFacilityId: 'fac-008',
       destinationFacilityId: 'fac-003',
       currentStatus: 'CREATED',
-      isStalled: true,
-      stalledSince: hoursAgo(48),
+      isStalled: false,
       timeline: makeTimeline([
         { status: 'CREATED', hoursAgo: 48, actor: 'Dr. Rajesh — PHC Palampur', notes: 'Referred for orthopedics consult' },
       ]),
