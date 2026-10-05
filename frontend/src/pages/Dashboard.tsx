@@ -19,8 +19,23 @@ import type { Referral } from '../data/types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { referrals, facilities, alerts, role, simulateStalled } = useStore();
+  const { referrals: allReferrals, facilities, alerts, role, simulateStalled } = useStore();
   const [triggering, setTriggering] = React.useState(false);
+
+  const referrals = React.useMemo(() => {
+    let list = [...allReferrals];
+    if (role === 'referring_facility' || role === 'asha') {
+      return list.filter(r => r.referringFacilityId === 'fac-008');
+    } else if (role === 'receiving_facility') {
+      return list.filter(r => r.destinationFacilityId === 'fac-003');
+    } else if (role === 'doctor') {
+      return list.filter(r => 
+        r.destinationFacilityId === 'fac-003' && 
+        ['APPOINTMENT_SCHEDULED', 'PATIENT_ARRIVED', 'TREATMENT_RECORDED', 'FOLLOW_UP_SCHEDULED', 'FOLLOW_UP_COMPLETED', 'CLOSED'].includes(r.currentStatus)
+      );
+    }
+    return list;
+  }, [allReferrals, role]);
 
   const totalReferrals = referrals.length;
   const pendingAcceptance = referrals.filter(r => r.currentStatus === 'CREATED').length;
@@ -62,27 +77,35 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {role === 'asha' ? 'Namaste, Sunita!' : role === 'facility' ? 'Welcome, Dr. Priya' : 'Admin Dashboard'}
+            {role === 'referring_facility' ? 'Welcome, Dr. Rajesh' : 
+             role === 'receiving_facility' ? 'Welcome, Admin' :
+             role === 'doctor' ? 'Welcome, Dr. Priya Sharma' :
+             role === 'asha' ? 'Namaste, Sunita!' : 'Admin Dashboard'}
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            {role === 'asha' ? 'SC Khirki Village, Farah Block' : role === 'facility' ? 'CHC Narholi, Mathura' : 'SehatSetu System Overview'}
+            {role === 'referring_facility' ? 'PHC Palampur' : 
+             role === 'receiving_facility' ? 'District Hospital Palampur' :
+             role === 'doctor' ? 'Cardiology • District Hospital Palampur' :
+             role === 'asha' ? 'ASHA Worker • Palampur Village' : 'SehatSetu System Overview'}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            to="/create"
-            className="bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 shadow-md shadow-brand-500/20 transition-all hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.98]"
-          >
-            <PlusCircle className="h-4.5 w-4.5" />
-            New Referral
-          </Link>
+          {role === 'referring_facility' && (
+            <Link
+              to="/create"
+              className="bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 shadow-md shadow-brand-500/20 transition-all hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.98]"
+            >
+              <PlusCircle className="h-4.5 w-4.5" />
+              New Referral
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Demo Mode Banner */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-blue-900">🎯 SIH Prototype Demo Mode</p>
+          <p className="text-sm font-semibold text-blue-900"></p>
           <p className="text-xs text-blue-700 mt-0.5">Run stall detection manually or create referrals to test the full workflow.</p>
         </div>
         <button
@@ -169,9 +192,11 @@ const Dashboard: React.FC = () => {
                 <div className="p-8 text-center">
                   <Stethoscope className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                   <p className="text-sm text-gray-500">No referrals yet.</p>
-                  <Link to="/create" className="text-sm text-brand-600 font-semibold hover:underline mt-1 inline-block">
-                    Create your first referral →
-                  </Link>
+                  {role === 'referring_facility' && (
+                    <Link to="/create" className="text-sm text-brand-600 font-semibold hover:underline mt-1 inline-block">
+                      Create your first referral →
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100">
@@ -196,12 +221,14 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h3 className="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">Quick Actions</h3>
             <div className="space-y-2">
-              <Link to="/create" className="flex items-center gap-3 p-3 rounded-lg hover:bg-brand-50 transition-colors group">
-                <div className="bg-brand-100 p-2 rounded-lg group-hover:bg-brand-200 transition-colors">
-                  <PlusCircle className="h-4 w-4 text-brand-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Create New Referral</span>
-              </Link>
+              {role === 'referring_facility' && (
+                <Link to="/create" className="flex items-center gap-3 p-3 rounded-lg hover:bg-brand-50 transition-colors group">
+                  <div className="bg-brand-100 p-2 rounded-lg group-hover:bg-brand-200 transition-colors">
+                    <PlusCircle className="h-4 w-4 text-brand-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Create New Referral</span>
+                </Link>
+              )}
               <Link to="/referrals" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition-colors">
                   <TrendingUp className="h-4 w-4 text-gray-600" />

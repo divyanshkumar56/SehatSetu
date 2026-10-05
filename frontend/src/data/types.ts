@@ -1,6 +1,6 @@
 // ===== CORE TYPES FOR SEHATSETU =====
 
-export type UserRole = 'asha' | 'facility' | 'admin';
+export type UserRole = 'referring_facility' | 'receiving_facility' | 'doctor' | 'asha' | 'admin' | 'patient';
 
 export type ReferralStatus =
   | 'CREATED'

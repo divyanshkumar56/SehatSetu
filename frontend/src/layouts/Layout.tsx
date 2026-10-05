@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -13,35 +13,72 @@ import {
   RefreshCw,
   ChevronDown,
   Heart,
-  Smartphone,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import type { UserRole } from '../data/types';
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  asha: 'ASHA/ANM Worker',
-  facility: 'Receiving Facility',
+  referring_facility: 'Referring Facility — PHC Palampur',
+  receiving_facility: 'Receiving Facility — District Hospital Palampur',
+  doctor: 'Doctor — Dr. Priya Sharma',
+  asha: 'ASHA/ANM — Sunita Devi',
   admin: 'Administrator',
+  patient: 'Patient View',
 };
 
 const ROLE_COLORS: Record<UserRole, string> = {
+  referring_facility: 'bg-emerald-100 text-emerald-800',
+  receiving_facility: 'bg-blue-100 text-blue-800',
+  doctor: 'bg-indigo-100 text-indigo-800',
   asha: 'bg-teal-100 text-teal-800',
-  facility: 'bg-blue-100 text-blue-800',
   admin: 'bg-purple-100 text-purple-800',
+  patient: 'bg-gray-100 text-gray-800',
 };
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/create', label: 'Create Referral', icon: PlusCircle },
-  { path: '/referrals', label: 'All Referrals', icon: ClipboardList },
-  { path: '/facilities', label: 'Facility Directory', icon: Building2 },
-  { path: '/alerts', label: 'Alerts & Escalations', icon: AlertTriangle },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/patient', label: 'Patient View', icon: Smartphone },
-];
+const getNavItems = (role: UserRole) => {
+  switch (role) {
+    case 'referring_facility':
+      return [
+        { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/create', label: 'Create Referral', icon: PlusCircle },
+        { path: '/referrals', label: 'My Referrals', icon: ClipboardList },
+        { path: '/facilities', label: 'Facility Directory', icon: Building2 },
+        { path: '/alerts', label: 'Alerts', icon: AlertTriangle },
+      ];
+    case 'receiving_facility':
+      return [
+        { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/referrals', label: 'Incoming Referrals', icon: ClipboardList },
+        { path: '/alerts', label: 'Alerts', icon: AlertTriangle },
+      ];
+    case 'doctor':
+      return [
+        { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/referrals', label: "Today's Appointments", icon: ClipboardList },
+      ];
+    case 'asha':
+      return [
+        { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/referrals', label: 'My Assigned Referrals', icon: ClipboardList },
+        { path: '/alerts', label: 'Alerts', icon: AlertTriangle },
+      ];
+    case 'admin':
+      return [
+        { path: '/', label: 'Overview', icon: LayoutDashboard },
+        { path: '/referrals', label: 'All Referrals', icon: ClipboardList },
+        { path: '/facilities', label: 'Facilities', icon: Building2 },
+        { path: '/alerts', label: 'Alerts', icon: AlertTriangle },
+        { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+      ];
+    case 'patient':
+    default:
+      return [];
+  }
+};
 
 const Layout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { role, setRole, alerts, resetAllData } = useStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
@@ -88,7 +125,15 @@ const Layout: React.FC = () => {
                 {(Object.keys(ROLE_LABELS) as UserRole[]).map(r => (
                   <button
                     key={r}
-                    onClick={() => { setRole(r); setRoleDropdownOpen(false); }}
+                    onClick={() => {
+                      setRole(r);
+                      setRoleDropdownOpen(false);
+                      if (r === 'patient') {
+                        navigate('/patient/REF-2026-00124');
+                      } else {
+                        navigate('/');
+                      }
+                    }}
                     className={`w-full text-left px-3 py-2.5 text-xs font-medium hover:bg-gray-50 transition-colors ${r === role ? 'bg-brand-50 text-brand-700' : 'text-gray-700'}`}
                   >
                     {ROLE_LABELS[r]}
@@ -101,7 +146,7 @@ const Layout: React.FC = () => {
 
         {/* Nav Items */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map(item => {
+          {getNavItems(role).map(item => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             const Icon = item.icon;
             return (
@@ -160,7 +205,15 @@ const Layout: React.FC = () => {
             <div className="px-4 py-3 border-b border-gray-100">
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
+                onChange={(e) => {
+                  const newRole = e.target.value as UserRole;
+                  setRole(newRole);
+                  if (newRole === 'patient') {
+                    navigate('/patient/REF-2026-00124');
+                  } else {
+                    navigate('/');
+                  }
+                }}
                 className={`w-full px-3 py-2 rounded-lg text-xs font-semibold ${ROLE_COLORS[role]} border-0 outline-none`}
               >
                 {(Object.keys(ROLE_LABELS) as UserRole[]).map(r => (
@@ -170,7 +223,7 @@ const Layout: React.FC = () => {
             </div>
 
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              {NAV_ITEMS.map(item => {
+              {getNavItems(role).map(item => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
                 return (
@@ -228,7 +281,7 @@ const Layout: React.FC = () => {
                 <span className="font-bold text-gray-900">SehatSetu</span>
               </div>
               <h1 className="hidden lg:block text-lg font-semibold text-gray-800">
-                {NAV_ITEMS.find(n => n.path === location.pathname || (n.path !== '/' && location.pathname.startsWith(n.path)))?.label || 'Dashboard'}
+                {getNavItems(role).find(n => n.path === location.pathname || (n.path !== '/' && location.pathname.startsWith(n.path)))?.label || 'Dashboard'}
               </h1>
             </div>
             <div className="flex items-center gap-3">
@@ -242,7 +295,7 @@ const Layout: React.FC = () => {
               </Link>
               <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold ${ROLE_COLORS[role]}`}>
                 <User className="h-3.5 w-3.5" />
-                {role === 'asha' ? 'ASHA Sunita' : role === 'facility' ? 'Dr. Priya' : 'Admin'}
+                {ROLE_LABELS[role].split('—')[0].trim()}
               </div>
             </div>
           </div>

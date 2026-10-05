@@ -28,7 +28,7 @@ const STATUS_FILTERS: { label: string; value: ReferralStatus | 'ALL' | 'STALLED'
 
 const AllReferrals: React.FC = () => {
   const navigate = useNavigate();
-  const { referrals, facilities } = useStore();
+  const { referrals, facilities, role } = useStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
@@ -36,6 +36,18 @@ const AllReferrals: React.FC = () => {
 
   const filtered = useMemo(() => {
     let list = [...referrals];
+
+    // Role-based filtering
+    if (role === 'referring_facility' || role === 'asha') {
+      list = list.filter(r => r.referringFacilityId === 'fac-008');
+    } else if (role === 'receiving_facility') {
+      list = list.filter(r => r.destinationFacilityId === 'fac-003');
+    } else if (role === 'doctor') {
+      list = list.filter(r => 
+        r.destinationFacilityId === 'fac-003' && 
+        ['APPOINTMENT_SCHEDULED', 'PATIENT_ARRIVED', 'TREATMENT_RECORDED', 'FOLLOW_UP_SCHEDULED', 'FOLLOW_UP_COMPLETED', 'CLOSED'].includes(r.currentStatus)
+      );
+    }
 
     if (statusFilter === 'STALLED') {
       list = list.filter(r => r.isStalled);

@@ -59,11 +59,26 @@ const ReferralDetail: React.FC = () => {
 
   const getActorName = () => {
     switch (role) {
-      case 'asha': return 'ASHA Sunita (SC Khirki Village)';
-      case 'facility': return `Dr. Priya (${destFacility?.name || 'Facility'})`;
+      case 'referring_facility': return 'Dr. Rajesh — PHC Palampur';
+      case 'receiving_facility': return 'Admin — District Hospital Palampur';
+      case 'doctor': return 'Dr. Priya Sharma — Cardiology';
+      case 'asha': return 'ASHA Sunita Devi';
       case 'admin': return 'System Administrator';
+      case 'patient': return 'Patient';
+      default: return 'System';
     }
   };
+
+  const allowedActionsByRole: Record<string, ReferralStatus[]> = {
+    referring_facility: ['CANCELLED'],
+    receiving_facility: ['ACCEPTED', 'REJECTED', 'APPOINTMENT_SCHEDULED'],
+    doctor: ['PATIENT_ARRIVED', 'TREATMENT_RECORDED', 'FOLLOW_UP_SCHEDULED', 'FOLLOW_UP_COMPLETED', 'CLOSED'],
+    asha: [],
+    admin: [],
+    patient: [],
+  };
+
+  const roleValidNext = validNext.filter(status => allowedActionsByRole[role]?.includes(status));
 
   const handleAdvance = (status: ReferralStatus) => {
     const extra: Record<string, string | undefined> = {};
@@ -305,7 +320,7 @@ const ReferralDetail: React.FC = () => {
         {/* Right: Actions */}
         <div className="space-y-6">
           {/* Actions Panel */}
-          {!isTerminal && validNext.length > 0 && (
+          {!isTerminal && roleValidNext.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-20">
               <button
                 onClick={() => setShowActionPanel(!showActionPanel)}
@@ -318,7 +333,7 @@ const ReferralDetail: React.FC = () => {
               {showActionPanel && (
                 <div className="space-y-4">
                   {/* Accept */}
-                  {validNext.includes('ACCEPTED') && (
+                  {roleValidNext.includes('ACCEPTED') && (
                     <div className="space-y-2">
                       <textarea
                         value={actionNotes}
@@ -336,25 +351,47 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Reject */}
-                  {validNext.includes('REJECTED') && (
+                  {roleValidNext.includes('REJECTED') && (
                     <div className="space-y-2">
-                      <textarea
+                      <select
                         value={rejectReason}
                         onChange={e => setRejectReason(e.target.value)}
-                        placeholder="Reason for rejection (required)..."
-                        className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm resize-none h-16 focus:ring-2 focus:ring-red-500 outline-none bg-red-50"
-                      />
+                        className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-red-50"
+                      >
+                        <option value="">Select reason...</option>
+                        <option value="Cardiology service unavailable currently">Cardiology service unavailable currently</option>
+                        <option value="No beds available">No beds available</option>
+                        <option value="Specialist on leave">Specialist on leave</option>
+                      </select>
+                      {rejectReason && (
+                        <div className="mt-2">
+                          <label className="text-xs font-semibold text-gray-600 mb-1 block">Suggest Alternative Facility</label>
+                          <select
+                            onChange={e => {
+                              if (e.target.value) {
+                                setRejectReason(rejectReason.split(' - Suggested alternative:')[0] + ' - Suggested alternative: ' + e.target.value);
+                              }
+                            }}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                          >
+                            <option value="">None</option>
+                            {facilities.filter(f => f.id !== referral.destinationFacilityId && f.acceptingReferrals).map(f => (
+                              <option key={f.id} value={f.name}>{f.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                       <button
                         onClick={() => handleAdvance('REJECTED')}
                         className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-bold py-2.5 rounded-lg text-sm border border-red-200 transition-colors"
                       >
-                        ✗ Reject Referral
+                        ✗ Send Alternative Recommendation
                       </button>
                     </div>
                   )}
 
                   {/* Schedule Appointment */}
-                  {validNext.includes('APPOINTMENT_SCHEDULED') && (
+                  {roleValidNext.includes('APPOINTMENT_SCHEDULED') && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">Schedule Appointment</label>
                       <input
@@ -380,7 +417,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Patient Arrived */}
-                  {validNext.includes('PATIENT_ARRIVED') && (
+                  {roleValidNext.includes('PATIENT_ARRIVED') && (
                     <button
                       onClick={() => handleAdvance('PATIENT_ARRIVED')}
                       className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-sm transition-colors"
@@ -390,7 +427,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Record Treatment */}
-                  {validNext.includes('TREATMENT_RECORDED') && (
+                  {roleValidNext.includes('TREATMENT_RECORDED') && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">Treatment Notes</label>
                       <textarea
@@ -409,7 +446,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Schedule Follow-up */}
-                  {validNext.includes('FOLLOW_UP_SCHEDULED') && (
+                  {roleValidNext.includes('FOLLOW_UP_SCHEDULED') && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">Follow-up Date</label>
                       <input
@@ -429,7 +466,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Complete Follow-up */}
-                  {validNext.includes('FOLLOW_UP_COMPLETED') && (
+                  {roleValidNext.includes('FOLLOW_UP_COMPLETED') && (
                     <div className="space-y-2">
                       <textarea
                         value={actionNotes}
@@ -447,7 +484,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Close */}
-                  {validNext.includes('CLOSED') && (
+                  {roleValidNext.includes('CLOSED') && (
                     <button
                       onClick={() => handleAdvance('CLOSED')}
                       className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm transition-colors"
@@ -457,7 +494,7 @@ const ReferralDetail: React.FC = () => {
                   )}
 
                   {/* Cancel */}
-                  {validNext.includes('CANCELLED') && (
+                  {roleValidNext.includes('CANCELLED') && (
                     <button
                       onClick={() => {
                         if (confirm('Are you sure you want to cancel this referral?')) {

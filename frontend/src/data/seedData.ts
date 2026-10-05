@@ -31,10 +31,10 @@ export const SEED_FACILITIES: Facility[] = [
   },
   {
     id: 'fac-003',
-    name: 'District Hospital Mathura',
+    name: 'District Hospital Palampur',
     type: 'District Hospital',
-    district: 'Mathura',
-    block: 'Mathura City',
+    district: 'Palampur',
+    block: 'Palampur City',
     specialties: [
       'General Medicine', 'Obstetrics & Gynecology', 'Pediatrics', 'Surgery',
       'Orthopedics', 'Ophthalmology', 'ENT', 'Cardiology', 'Dermatology', 'Dental', 'Emergency Medicine'
@@ -107,12 +107,12 @@ export const SEED_FACILITIES: Facility[] = [
   },
   {
     id: 'fac-008',
-    name: 'SC Khirki Village',
-    type: 'Sub-Centre',
-    district: 'Mathura',
-    block: 'Farah',
+    name: 'PHC Palampur',
+    type: 'PHC',
+    district: 'Palampur',
+    block: 'Palampur',
     specialties: ['General Medicine'],
-    capabilities: ['Immunization', 'ANC/PNC', 'Health Education'],
+    capabilities: ['Immunization', 'ANC/PNC', 'Health Education', 'Basic Life Support'],
     acceptingReferrals: false,
     lat: 27.4780,
     lng: 77.6480,
@@ -121,7 +121,7 @@ export const SEED_FACILITIES: Facility[] = [
   },
 ];
 
-export const REFERRING_FACILITY_ID = 'fac-008'; // SC Khirki Village (ASHA's base)
+export const REFERRING_FACILITY_ID = 'fac-008'; // PHC Palampur
 
 // Haversine distance calculation
 export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {

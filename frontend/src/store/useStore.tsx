@@ -70,7 +70,11 @@ function generateId(): string {
 }
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRoleState] = useState<UserRole>(() => loadFromStorage(STORAGE_KEYS.role, 'asha' as UserRole));
+  const [role, setRoleState] = useState<UserRole>(() => {
+    const loadedRole = loadFromStorage(STORAGE_KEYS.role, 'referring_facility' as UserRole);
+    const validRoles = ['referring_facility', 'receiving_facility', 'doctor', 'asha', 'admin', 'patient'];
+    return validRoles.includes(loadedRole) ? loadedRole : 'referring_facility';
+  });
   const [referrals, setReferrals] = useState<Referral[]>(() => loadFromStorage(STORAGE_KEYS.referrals, []));
   const [facilities, setFacilities] = useState<Facility[]>(() => loadFromStorage(STORAGE_KEYS.facilities, []));
   const [alerts, setAlerts] = useState<Alert[]>(() => loadFromStorage(STORAGE_KEYS.alerts, []));
@@ -250,7 +254,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setFacilities(seedFacilities);
     setReferrals(seedReferrals);
     setAlerts(seedAlerts);
-    setRoleState('asha');
+    setRoleState('referring_facility');
     localStorage.setItem(STORAGE_KEYS.initialized, 'true');
   }, []);
 
