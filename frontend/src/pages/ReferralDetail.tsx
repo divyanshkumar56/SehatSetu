@@ -512,14 +512,21 @@ const ReferralDetail: React.FC = () => {
           )}
 
           {/* Patient QR Link */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Patient View</h3>
-            <p className="text-xs text-gray-500 mb-3">Share this link with the patient to track their referral status.</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Patient Tracking QR</h3>
+            <div className="bg-white p-3 rounded-xl inline-block mb-3 shadow-sm border border-gray-100">
+              <img 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + '/patient/' + referral.referralCode)}`} 
+                alt="Patient Tracking QR Code"
+                className="w-32 h-32 mx-auto"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mb-4 px-2">Print or share this code with the patient so they can track their referral.</p>
             <button
               onClick={() => navigate(`/patient/${referral.referralCode}`)}
-              className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2.5 rounded-lg text-sm border border-gray-200 transition-colors"
+              className="w-full bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold py-2.5 rounded-lg text-sm border border-brand-200 transition-colors flex items-center justify-center gap-2"
             >
-              Open Patient View →
+              Simulate Patient View <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </div>
