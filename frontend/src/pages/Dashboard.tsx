@@ -103,20 +103,22 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Demo Mode Banner */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-blue-900"></p>
-          <p className="text-xs text-blue-700 mt-0.5">Run stall detection manually or create referrals to test the full workflow.</p>
+      {(role === 'asha' || role === 'admin') && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-blue-900"></p>
+            <p className="text-xs text-blue-700 mt-0.5">Run stall detection manually to test the full workflow.</p>
+          </div>
+          <button
+            onClick={handleTriggerStall}
+            disabled={triggering}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 disabled:opacity-50 transition-colors shrink-0"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${triggering ? 'animate-spin' : ''}`} />
+            Simulate Stall Check
+          </button>
         </div>
-        <button
-          onClick={handleTriggerStall}
-          disabled={triggering}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 disabled:opacity-50 transition-colors shrink-0"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${triggering ? 'animate-spin' : ''}`} />
-          Simulate Stall Check
-        </button>
-      </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
