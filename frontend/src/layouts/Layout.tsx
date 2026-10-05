@@ -189,7 +189,6 @@ const Layout: React.FC = () => {
             <RefreshCw className="h-3.5 w-3.5" />
             Reset Demo Data
           </button>
-          <p className="text-[10px] text-gray-400 text-center mt-1">SIH 2026 Prototype</p>
         </div>
       </aside>
 
