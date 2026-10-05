@@ -9,9 +9,9 @@ import {
   Clock,
   CheckCircle2,
   CalendarDays,
-  TrendingUp,
   RefreshCw,
   Stethoscope,
+  QrCode,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { STATUS_COLORS, STATUS_LABELS, URGENCY_COLORS } from '../data/types';
@@ -70,6 +70,27 @@ const Dashboard: React.FC = () => {
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
   };
+
+  if (role === 'patient') {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+        <div className="bg-brand-100 p-4 rounded-full mb-6 mt-10">
+          <QrCode className="h-10 w-10 text-brand-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Patient Demo Mode</h1>
+        <p className="text-gray-500 max-w-md mx-auto mb-8">
+          You are currently in the Patient View role. Patients do not have access to a staff dashboard.
+        </p>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-md w-full text-left mx-auto">
+          <h3 className="font-bold text-gray-800 mb-2">How to continue the demo:</h3>
+          <ol className="text-sm text-gray-600 space-y-3 list-decimal pl-4">
+            <li>Open the sidebar menu on the left.</li>
+            <li>Use the role switcher at the bottom to select a staff role (e.g., <span className="font-semibold text-gray-800">Receiving Facility</span>).</li>
+          </ol>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
